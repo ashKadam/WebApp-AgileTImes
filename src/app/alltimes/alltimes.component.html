@@ -1,48 +1,91 @@
 <div class="alltimesheets ui-g">
-
-
-  <div class="header ui-g-12">
-
-    <h2>
-      All Timesheets
-    </h2>
-    <h3>
-      Click to edit Users and Projects
-    </h3>
-
-  </div>
-
-
-  <p-dataTable #dt [value]="allTimesheetData" class="ui-g-12" sortField="startTime" sortOrder="1" emptyMessage="No time entries found"
-    [reorderableColumns]="true" columnResizeMode="fit" [resizableColumns]="true" [globalFilter]="tableSearch" exportFilename="users"
-    [editable]="true" (onEditComplete)="onEditComplete($event)" [(selection)]="selectedRows" (onRowSelect)="onRowSelect($event)"
-    [contextMenu]="tableContextMenu" [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5,10,15,20]" [totalRecords]="recordCount"
-    [pageLinks]="8">
-
-    <p-column selectionMode="multiple" styleClass="selectBoxColumn"></p-column>
-
-    <p-column field="user" header="User" [editable]="true"></p-column>
-    <p-column field="project" header="Project" [filter]="true" filterPlaceholder="Type a Project" filterMatchMode="equals" [style]="{'overflow':'visible'}"
-      [editable]="true">
-      <ng-template pTemplate="filter" let-col>
-        <p-dropdown [options]="allProjects" [style]="{'width':'100%'}" (onChange)="dt.filter($event.value,col.field,col.filterMatchMode)"
-          styleClass="ui-column-filter"></p-dropdown>
-      </ng-template>
-      <ng-template let-col let-project="rowData" pTemplate="editor">
-        <p-dropdown [(ngModel)]="project[col.field]" [options]="allProjects" [autoWidth]="false" [style]="{'width':'100%'}" required="true"></p-dropdown>
-      </ng-template>
-
-    </p-column>
-    <p-column field="category" header="Category" [sortable]="true"></p-column>
-    <p-column field="startTime" header="Start Time" [sortable]="true"></p-column>
-    <p-column field="endTime" header="End Time"></p-column>
-    <p-footer>
-      <label for="tableSearch">Search: </label>
-      <input id="tableSearch" #tableSearch type="text" placeholder="Search All The Things">
-      <button type="button" pButton icon="fa-table" label="Export" (click)="dt.exportCSV()" style="float:right;"></button>
-    </p-footer>
-  </p-dataTable>
-
-  <p-contextMenu #tableContextMenu [model]="contextMenu"></p-contextMenu>
-
-</div>
+    
+    
+      <div class="header ui-g-12">
+    
+        <h2>
+          All Timesheets
+        </h2>
+        <h3>
+          Click to edit Users and Projects
+        </h3>
+    
+      </div>
+    
+    
+      <p-dataTable #dt [value]="allTimesheetData" class="ui-g-12" sortField="startTime" sortOrder="1" emptyMessage="No time entries found"
+        [reorderableColumns]="true" columnResizeMode="fit" [resizableColumns]="true" [globalFilter]="tableSearch" exportFilename="users"
+        [editable]="true" (onEditComplete)="onEditComplete($event)" [(selection)]="selectedRows" 
+        [contextMenu]="tableContextMenu" [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5,10,15,20]" [totalRecords]="recordCount"
+        [pageLinks]="8">
+    
+        <p-column selectionMode="multiple" styleClass="selectBoxColumn"></p-column>
+    
+        <p-column field="user" header="User" [editable]="true"></p-column>
+        <p-column field="project" header="Project" [filter]="true" filterPlaceholder="Type a Project" filterMatchMode="equals" [style]="{'overflow':'visible'}"
+          [editable]="true">
+          <ng-template pTemplate="filter" let-col>
+            <p-dropdown [options]="allProjects" [style]="{'width':'100%'}" (onChange)="dt.filter($event.value,col.field,col.filterMatchMode)"
+              styleClass="ui-column-filter"></p-dropdown>
+          </ng-template>
+          <ng-template let-col let-project="rowData" pTemplate="editor">
+            <p-dropdown [(ngModel)]="project[col.field]" [options]="allProjects" [autoWidth]="false" [style]="{'width':'100%'}" required="true"></p-dropdown>
+          </ng-template>
+    
+        </p-column>
+        <p-column field="category" header="Category" [sortable]="true"></p-column>
+        <p-column field="startTime" header="Start Time" [sortable]="true"></p-column>
+        <p-column field="endTime" header="End Time"></p-column>
+        <p-footer>
+            <button pButton label="Add Time Entry" style="float:left;" (click)="showEditForm = true"></button>
+            <p-confirmDialog icon="fa fa-question-circle" width="425" [visible]="false" #confirmDialog>
+              <p-footer>
+                <button type="button" pButton icon="fa-close" label="No, go back" (click)="confirmDialog.reject()"></button>
+                <button type="button" pButton icon="fa-check" label="Yes, lose changes"
+                            (click)="confirmDialog.accept() && confirmDialog.hide()"></button>
+              </p-footer>
+            </p-confirmDialog>
+            
+          <label for="tableSearch">Search: </label>
+          <input id="tableSearch" #tableSearch type="text" placeholder="Search All The Things">
+          <button type="button" pButton icon="fa-table" label="Export" (click)="dt.exportCSV()" style="float:right;"></button>
+        </p-footer>
+      </p-dataTable>
+    
+      <p-contextMenu #tableContextMenu [model]="contextMenu"></p-contextMenu>
+    
+      <p-dialog header="Add New Time Entry"  [(visible)]="showEditForm" width="700" height="450" [modal]="true" [responsive]="true">
+        <form class="ui-g" [formGroup]="addEntryForm" (ngSubmit)="onSaveComplete()"> 
+          <p-panel  class="ui-g-12">
+              <div class="dialogBody">
+                  <div class="ui-g">
+                      <label for="User" class="ui-g-3 ui-md-3">User Name : </label>
+                      <input id="User" formControlName="User" class="ui-g-9 ui-md-9" type="text" />
+                  </div>
+                  <div class="ui-g">
+                      <label for="Project" class="ui-g-3 ui-md-3">Project Name: </label>
+                      <input id="Project" formControlName="Project" class="ui-g-9 ui-md-9" type="text" />
+                  </div>
+                  <div class="ui-g">
+                      <label for="Category" class="ui-g-3 ui-md-3">Category:</label>
+                      <input id="Category" formControlName="Category" class="ui-g-9 ui-md-9" type="text" />
+                  </div>
+                  <div class="ui-g">
+                      <label for="StartTime" class="ui-g-3 ui-md-3">Start Time:</label>
+                      <input id="StartTime" formControlName="StartTime" class="ui-g-9 ui-md-9" type="number" />
+                  </div>
+                  <div class="ui-g">
+                      <label for="EndTime" class="ui-g-3 ui-md-3">End Time:</label>
+                      <input id="EndTime" formControlName="EndTime" class="ui-g-9 ui-md-9" type="number" />
+                  </div>
+                </div>
+          </p-panel>
+          <p-footer>
+              <button pButton type="submit" label="Save" icon="fa-check" style="float:left;"></button>
+              <button pButton label="Cancel" icon="fa-times" (click)="cancelDialog()" style="float:right;" class="ui-button-secondary"></button>
+          </p-footer>
+          
+        </form>
+      </p-dialog>
+    
+    </div>
