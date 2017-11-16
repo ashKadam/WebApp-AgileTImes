@@ -1,0 +1,18 @@
+<h1>{{cameraName}}</h1>
+
+<div *ngIf="isStreaming">
+
+  <iframe type="text/html" frameborder="0" width="890" height="400" src="//video.nest.com/embedded/live/rrwzgV?autoplay=1"
+    allowfullscreen></iframe>
+
+</div>
+
+<p-dataTable #dt [value]="allLogData" class="ui-g-12" sortField="logDate" sortOrder="1" emptyMessage="No entries found"
+[reorderableColumns]="true" columnResizeMode="fit" [resizableColumns]="true" [globalFilter]="tableSearch" exportFilename="motionLog"
+[editable]="true" (onEditComplete)="onEditComplete($event)" [(selection)]="selectedRows" [totalRecords]="recordCount" >
+
+<p-column field="id" header="Log ID" [editable]="true"></p-column>
+<p-column field="cameraId" header="Camera ID" [editable]="true"></p-column>
+<p-column field="cameraName" header="Camera Name" [editable]="true"></p-column>
+<p-column field="logDate" header="Event Date" [sortable]="true"></p-column>
+</p-dataTable>
