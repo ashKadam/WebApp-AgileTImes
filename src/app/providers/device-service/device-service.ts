@@ -1,11 +1,13 @@
 import { NestApplicationInterface } from '../nest/NestApplicationInterface';
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/map';
 import { DeviceModel } from '../../models/device';
 import { NestCamEventModel } from '../../models/nestcam-event';
 import { NotificationService } from '../notification-service/notification-service';
+import { Apollo } from 'apollo-angular';
+import gql from 'graphql-tag';
 
 @Injectable()
 export class DeviceService {
@@ -20,14 +22,14 @@ export class DeviceService {
     devices: Array<DeviceModel>
   };
 
-  constructor(private _nestAPI: NestApplicationInterface, private _notify: NotificationService) {
+  constructor(private apollo: Apollo, private _nestAPI: NestApplicationInterface, private _notify: NotificationService) {
 
     this._deviceStore = { devices: new Array<DeviceModel>() };
 
     this._devices$ = new BehaviorSubject(new Array<DeviceModel>());
 
     this.devices$ = this._devices$.asObservable();
-
+    console.log("Here");
     this._InitiateNestAPI();
 
   }
@@ -132,7 +134,7 @@ export class DeviceService {
 
   // Sets hasNewEvent property for new devices.
   private _ParseDevicesForMotionEvents(cachedDevices: Array<DeviceModel>, newDevices: Array<DeviceModel>): Array<DeviceModel> {
-
+    //this._LogMotionEvent(newDevices[0]);
     for (var cachedDevice of cachedDevices) {
 
       for (var newDevice of newDevices) {
@@ -142,8 +144,8 @@ export class DeviceService {
           if (this._CameraHasNewMotionEvent(cachedDevice, newDevice)) {
 
             newDevice.hasNewEvent = true;
-            this._notify.SendMotionNotification(newDevice);
-
+            //this._notify.SendMotionNotification(newDevice);
+            this._LogMotionEvent(newDevice);
           }
 
           break;
@@ -155,6 +157,37 @@ export class DeviceService {
 
     return newDevices;
 
+  }
+
+  private _LogMotionEvent( newDevice: DeviceModel) {
+    const id = newDevice.id;
+    const cameraId = newDevice.id;
+    const cameraName = newDevice.name;
+    const logDate = newDevice.LastEvent.startTime;
+    var image = newDevice.snapshotURL;
+
+    const createLogData = gql`
+    mutation createLogData ($cameraId: String!, $cameraName: String!, $logDate: DateTime!, $image: String!) {
+      createLogData(cameraId: $cameraId, cameraName: $cameraName, logDate: $logDate, image: $image ) {
+        id
+      }
+    }
+  `;
+    console.log("In here motion detection function");
+    this.apollo.mutate({
+      mutation: createLogData,
+      variables: {
+        id: id,
+        cameraId: cameraId,
+        cameraName: cameraName,
+        logDate: logDate,
+        image: image
+      }
+    }).subscribe(({ data }) => {
+      console.log('Data received', data);
+    }, (error) => {
+      console.log('Error sending the query', error);
+    });
   }
 
   // Determines if new motion events had occured.

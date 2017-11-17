@@ -7,12 +7,21 @@
 
 </div>
 
-<p-dataTable #dt [value]="allLogData" class="ui-g-12" sortField="logDate" sortOrder="1" emptyMessage="No entries found"
-[reorderableColumns]="true" columnResizeMode="fit" [resizableColumns]="true" [globalFilter]="tableSearch" exportFilename="motionLog"
-[editable]="true" (onEditComplete)="onEditComplete($event)" [(selection)]="selectedRows" [totalRecords]="recordCount" >
+<p-dataTable #dt [value]="allLogData" class="ui-g-12" sortField="logDate" sortOrder="-1" emptyMessage="No entries found"
+[reorderableColumns]="true" columnResizeMode="fit" [resizableColumns]="true" [globalFilter]="tableSearch"
+[editable]="true" [(selection)]="selectedRows" [totalRecords]="5" >
 
 <p-column field="id" header="Log ID" [editable]="true"></p-column>
 <p-column field="cameraId" header="Camera ID" [editable]="true"></p-column>
+<p-column field="image" header="Snapshot">
+  <ng-template let-img="rowData" pTemplate="body">
+    <img [src]="img.image" [style.width.px]="200" [style.height.px]="100">
+  </ng-template>
+</p-column>
 <p-column field="cameraName" header="Camera Name" [editable]="true"></p-column>
-<p-column field="logDate" header="Event Date" [sortable]="true"></p-column>
+<p-column field="logDate" header="Event Date" [sortable]="true">
+  <ng-template let-col let-car="rowData" pTemplate="body">
+    <span>{{car[col.field] | date: 'MM-dd-yyyy HH:mm:ss Z' }}</span>
+  </ng-template>
+</p-column>
 </p-dataTable>

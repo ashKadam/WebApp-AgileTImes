@@ -62,7 +62,6 @@ export class AlltimesComponent implements OnInit {
         }
     }`;
     
-
     const queryObservable = this.apollo.watchQuery({
 
       query: AllClientsQuery,

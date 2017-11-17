@@ -18,6 +18,7 @@ export class NestcamComponent implements OnInit {
   logCameraId: string;
   logCameraName: string;
   logDate: Date;
+  image: String;
 
   constructor(private apollo: Apollo, private _deviceService: DeviceService) {
 
@@ -63,26 +64,28 @@ export class NestcamComponent implements OnInit {
     });
 
     const AllLogDatas = gql`
-      allLogDatas {
+    query allLogDatas {
+      allLogDatas (last: 5){
           id
           cameraId
           cameraName
           logDate
+          image
         }
     }`;
 
     const queryLogObservable = this.apollo.watchQuery({
       
             query: AllLogDatas,
-            pollInterval: 500
+            pollInterval: 100
       
           }).subscribe(({ data, loading }: any) => {
             this.allLogData = data.allLogDatas;
-            this.logId = data.allNestCamsLog[0].id;
-            this.logCameraName = data.allNestCamsLog[0].cameraName;
-            this.logCameraId = data.allNestCamsLog[0].cameraId;
-            this.logDate = data.allNestCamsLog[0].logDate;
-      
+            this.logId = data.allLogDatas[0].id;
+            this.logCameraName = data.allLogDatas[0].cameraName;
+            this.logCameraId = data.allLogDatas[0].cameraId;
+            this.logDate = data.allLogDatas[0].logDate;
+            this.image = data.allLogDatas[0].image;
           });
 
   }
